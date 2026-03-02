@@ -646,7 +646,589 @@ service cloud.firestore {
 **Firebase Philosophy:** Focus on building features, not infrastructure. 🚀
 
 ---
+## 🎨 UI/UX Design & Figma-to-Flutter Translation
 
+Great apps aren't just functional — they're **thoughtfully designed** with users at the center. This section covers the design thinking process, responsive/adaptive design principles, and how to translate Figma prototypes into Flutter code.
+
+### Why Design Thinking Matters
+Before writing a single line of code, professional developers:
+1. **Empathize** with users to understand their needs
+2. **Define** the core problem to solve
+3. **Ideate** multiple solutions before choosing one
+4. **Prototype** designs in Figma for rapid testing
+5. **Test** with real users and iterate
+
+**Key Principle:** Design for humans first, technology second.
+
+📖 **Full Guide:** See [DESIGN_THINKING.md](DESIGN_THINKING.md) for detailed explanations of each stage with mobile app examples.
+
+---
+
+### 🎯 Design Thinking in Practice
+
+#### User Research Example
+**Target User:** College students managing coursework
+
+**Pain Points Discovered:**
+- Adding tasks takes too many taps (4-5 in competitors)
+- No visual priority indicators — hard to see what's urgent
+- Generic notifications aren't helpful
+- Difficult to filter by context (class, personal, urgent)
+
+#### Problem Statement
+> "Students need to capture tasks in under 3 seconds because they often think of tasks between activities, but current apps require multiple steps to add a single task."
+
+#### Solution: Our Design Decisions
+
+| Design Decision | Rationale |
+|-----------------|-----------|
+| **Floating Action Button (FAB)** | One tap to add task — reduces friction |
+| **Color-coded task cards** | Instant visual priority scanning |
+| **Swipe gestures** | Quick actions without opening task details |
+| **Minimal form fields** | Only title required, rest is optional |
+| **Large tap targets (48x48px)** | Thumb-friendly on large phones |
+
+---
+
+### 🎨 Figma-to-Flutter Workflow
+
+#### 1. Design in Figma First
+Figma allows rapid prototyping without writing code:
+- Create frames for different screen sizes (Mobile, Tablet, Desktop)
+- Define color palette and typography system
+- Build interactive prototypes to test user flows
+- Share with stakeholders for feedback before coding
+
+**Benefits:**
+- ⚡ Design changes take minutes instead of hours
+- 🎨 Visualize the complete app before building
+- 🤝 Non-technical stakeholders can test and provide feedback
+- 📱 Test on multiple device sizes simultaneously
+
+#### 2. Translate Components to Flutter
+
+Figma uses layers, frames, and components. Flutter uses widgets. Here's the mapping:
+
+| Figma Component | Flutter Widget | Properties |
+|-----------------|---------------|------------|
+| **Frame** | `Container` or `SizedBox` | Width, height, padding |
+| **Text** | `Text` | Font family, size, weight, color |
+| **Button** | `ElevatedButton`, `TextButton`, `OutlinedButton` | Color, elevation, shape |
+| **Auto Layout (Vertical)** | `Column` | Main axis, cross axis alignment |
+| **Auto Layout (Horizontal)** | `Row` | Main axis, cross axis alignment |
+| **Component** | Custom Widget (StatelessWidget) | Reusable UI element |
+| **Stack** | `Stack` | Positioned, Align widgets |
+| **Card** | `Card` | Elevation, shape, margin |
+
+#### 3. Extract Design Tokens
+
+**Figma Color Palette → Flutter Constants:**
+```dart
+class AppColors {
+  static const primary = Color(0xFF6750A4);      // Figma: Primary/500
+  static const secondary = Color(0xFF625B71);    // Figma: Secondary/500
+  static const error = Color(0xFFB3261E);        // Figma: Error/500
+  static const surface = Color(0xFFFFFBFE);      // Figma: Surface
+  static const onSurface = Color(0xFF1C1B1F);    // Figma: On Surface
+}
+```
+
+**Figma Typography → Flutter TextStyles:**
+```dart
+class AppTextStyles {
+  static const headline = TextStyle(
+    fontSize: 28,           // Figma: Headline/Large
+    fontWeight: FontWeight.bold,
+    height: 1.2,
+  );
+  
+  static const body = TextStyle(
+    fontSize: 16,           // Figma: Body/Medium
+    fontWeight: FontWeight.normal,
+    height: 1.5,
+  );
+}
+```
+
+**Figma Spacing (8px Grid) → Flutter Constants:**
+```dart
+class AppSpacing {
+  static const xs = 4.0;   // Figma: XS
+  static const sm = 8.0;   // Figma: Small
+  static const md = 16.0;  // Figma: Medium
+  static const lg = 24.0;  // Figma: Large
+  static const xl = 32.0;  // Figma: XL
+}
+```
+
+📖 **Full Guide:** See [FIGMA_DESIGN_GUIDE.md](FIGMA_DESIGN_GUIDE.md) for complete Figma-to-Flutter translation tables and examples.
+
+---
+
+### 📱 Responsive vs Adaptive Design
+
+Mobile apps must work on various screen sizes (phones, tablets, foldables, desktops). Flutter provides two approaches:
+
+#### **Responsive Design: Fluid Layouts**
+UI **adjusts smoothly** to any screen size using flexible components.
+
+```dart
+Container(
+  width: MediaQuery.of(context).size.width * 0.8,  // 80% of screen width
+  child: Text('Responsive width'),
+)
+```
+
+**Use Cases:**
+- Text that wraps based on available space
+- Images that scale proportionally
+- Flexible spacing between elements
+
+#### **Adaptive Design: Layout Switching**
+Different layouts for specific breakpoints (mobile vs tablet vs desktop).
+
+```dart
+LayoutBuilder(
+  builder: (context, constraints) {
+    if (constraints.maxWidth < 600) {
+      return MobileLayout();      // Phone: Single column
+    } else if (constraints.maxWidth < 1200) {
+      return TabletLayout();      // Tablet: Two columns
+    } else {
+      return DesktopLayout();     // Desktop: Three columns + sidebar
+    }
+  },
+)
+```
+
+**Use Cases:**
+- Different navigation patterns (bottom bar on mobile, sidebar on desktop)
+- Multi-column layouts on larger screens
+- Completely different UI hierarchy for tablets
+
+#### **Best Practice: Use Both!**
+- **Adaptive** for major layout shifts at breakpoints
+- **Responsive** for smooth adjustments within each layout
+
+---
+
+### 🔧 Responsive Design Implementation
+
+Located in `lib/screens/responsive_design_demo.dart`:
+
+#### 1. Breakpoint-Based Layouts
+
+```dart
+class ResponsiveLayout extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 600) {
+          return MobileLayout();       // < 600px: Phone
+        } else if (constraints.maxWidth < 1200) {
+          return TabletLayout();       // 600-1200px: Tablet
+        } else {
+          return DesktopLayout();      // > 1200px: Desktop
+        }
+      },
+    );
+  }
+}
+```
+
+#### 2. Mobile Layout (< 600px)
+**Design Strategy:** Single column, full-width components, stacked layout
+
+```dart
+class MobileLayout extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildHeaderCard(context),           // Full width header
+            SizedBox(height: 16),
+            _buildStatsCards(context, 1),        // 1 column stats
+            SizedBox(height: 16),
+            _buildTaskListSection(context),      // Full width tasks
+            SizedBox(height: 16),
+            _buildActionButtons(context, true),  // Stacked buttons
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Mobile-Specific Adjustments:**
+- Buttons stacked vertically for easier thumb reach
+- Full-width cards to maximize content visibility
+- Larger tap targets (48x48px minimum)
+- Simplified navigation (bottom navigation bar)
+
+#### 3. Tablet Layout (600-1200px)
+**Design Strategy:** Two-column grid, split content, more breathing room
+
+```dart
+class TabletLayout extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            _buildHeaderCard(context),
+            SizedBox(height: 24),
+            _buildStatsCards(context, 2),        // 2 columns stats
+            SizedBox(height: 24),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: _buildTaskListSection(context),  // 2/3 width
+                ),
+                SizedBox(width: 24),
+                Expanded(
+                  flex: 1,
+                  child: _buildActionButtons(context, false),  // 1/3 width
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Tablet-Specific Adjustments:**
+- Two-column grid for stats cards
+- Split layout: tasks on left, actions on right
+- Increased padding (24px vs 16px)
+- Horizontal button layout
+
+#### 4. Desktop Layout (> 1200px)
+**Design Strategy:** Multi-column grid, max-width container, spacious design
+
+```dart
+class DesktopLayout extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 1400),  // Max width for readability
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+              children: [
+                _buildHeaderCard(context),
+                SizedBox(height: 32),
+                _buildStatsCards(context, 4),        // 4 columns stats
+                SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _buildTaskListSection(context),
+                    ),
+                    SizedBox(width: 32),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          _buildActionButtons(context, false),
+                          SizedBox(height: 32),
+                          _buildDeviceInfo(context),  // Extra info panel
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Desktop-Specific Adjustments:**
+- Four-column stats grid for better data density
+- Max-width container (1400px) prevents content from being too wide
+- Extra padding (32px) for spacious feel
+- Additional info panel in sidebar
+- Optimized for mouse/keyboard interactions
+
+#### 5. Reusable Components
+To follow the **DRY principle** (Don't Repeat Yourself), shared UI elements are extracted into functions:
+
+```dart
+Widget _buildHeaderCard(BuildContext context) {
+  return Card(
+    child: Padding(
+      padding: EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Task Dashboard', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+          SizedBox(height: 8),
+          Text('Manage your tasks efficiently', style: TextStyle(color: Colors.grey[600])),
+        ],
+      ),
+    ),
+  );
+}
+```
+
+These components are used across all three layouts, ensuring consistency.
+
+---
+
+### 📏 Key Responsive Design Techniques
+
+#### 1. MediaQuery - Get Device Information
+```dart
+final screenSize = MediaQuery.of(context).size;
+final screenWidth = screenSize.width;
+final screenHeight = screenSize.height;
+final orientation = MediaQuery.of(context).orientation;
+final padding = MediaQuery.of(context).padding;  // Safe areas (notches, home indicator)
+
+// Use to make decisions
+if (screenWidth < 600) {
+  return Text('Mobile view');
+}
+```
+
+#### 2. LayoutBuilder - Respond to Parent Constraints
+```dart
+LayoutBuilder(
+  builder: (context, constraints) {
+    // constraints.maxWidth tells you the available space
+    if (constraints.maxWidth > 600) {
+      return Row(children: [...]);  // Horizontal layout
+    } else {
+      return Column(children: [...]);  // Vertical layout
+    }
+  },
+)
+```
+
+**Difference from MediaQuery:**
+- `MediaQuery` gives you **device** dimensions
+- `LayoutBuilder` gives you **parent widget** dimensions
+- Use `LayoutBuilder` for component-level responsiveness
+
+#### 3. Flexible & Expanded - Proportional Sizing
+```dart
+Row(
+  children: [
+    Flexible(
+      flex: 1,
+      child: Container(color: Colors.red),  // Takes 1/3 of space
+    ),
+    Flexible(
+      flex: 2,
+      child: Container(color: Colors.blue),  // Takes 2/3 of space
+    ),
+  ],
+)
+```
+
+#### 4. AspectRatio - Maintain Proportions
+```dart
+AspectRatio(
+  aspectRatio: 16 / 9,  // Always 16:9 regardless of screen size
+  child: Image.network('...'),
+)
+```
+
+#### 5. FractionallySizedBox - Percentage-Based Sizing
+```dart
+FractionallySizedBox(
+  widthFactor: 0.8,  // 80% of parent width
+  child: Text('Centered width'),
+)
+```
+
+---
+
+### 🔄 Orientation Handling
+
+Devices can rotate — your UI should adapt gracefully:
+
+```dart
+OrientationBuilder(
+  builder: (context, orientation) {
+    if (orientation == Orientation.portrait) {
+      return Column(children: [...]);  // Vertical
+    } else {
+      return Row(children: [...]);  // Horizontal
+    }
+  },
+)
+```
+
+**Example Use Case:**
+- **Portrait:** Image on top, text below
+- **Landscape:** Image on left, text on right
+
+---
+
+### ⚡ Performance Best Practices
+
+#### 1. Lazy Loading with ListView.builder
+```dart
+// ✅ Good: Only builds visible items
+ListView.builder(
+  itemCount: 1000,
+  itemBuilder: (context, index) => TaskCard(task: tasks[index]),
+)
+
+// ❌ Bad: Builds all 1000 items upfront
+ListView(
+  children: tasks.map((task) => TaskCard(task: task)).toList(),
+)
+```
+
+#### 2. Const Constructors
+```dart
+// ✅ Good: Widget is cached and reused
+const Text('Hello')
+const Icon(Icons.home)
+
+// ❌ Bad: Creates new instance on every build
+Text('Hello')
+Icon(Icons.home)
+```
+
+#### 3. Minimize Widget Rebuilds
+```dart
+class MyWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const StaticHeader(),    // Never rebuilds
+        DynamicContent(),        // Can rebuild
+      ],
+    );
+  }
+}
+```
+
+---
+
+### ✅ Design System Components
+
+Maintain consistency across your app with reusable design tokens:
+
+#### Color System
+```dart
+class AppColors {
+  // Primary colors
+  static const primary = Color(0xFF6750A4);
+  static const onPrimary = Color(0xFFFFFFFF);
+  
+  // Secondary colors
+  static const secondary = Color(0xFF625B71);
+  static const onSecondary = Color(0xFFFFFFFF);
+  
+  // Semantic colors
+  static const error = Color(0xFFB3261E);
+  static const success = Color(0xFF4CAF50);
+  static const warning = Color(0xFFFF9800);
+  
+  // Surface colors
+  static const surface = Color(0xFFFFFBFE);
+  static const onSurface = Color(0xFF1C1B1F);
+}
+```
+
+#### Typography System
+```dart
+class AppTextStyles {
+  static const displayLarge = TextStyle(fontSize: 57, fontWeight: FontWeight.bold);
+  static const displayMedium = TextStyle(fontSize: 45, fontWeight: FontWeight.bold);
+  static const displaySmall = TextStyle(fontSize: 36, fontWeight: FontWeight.bold);
+  
+  static const headlineLarge = TextStyle(fontSize: 32, fontWeight: FontWeight.bold);
+  static const headlineMedium = TextStyle(fontSize: 28, fontWeight: FontWeight.bold);
+  static const headlineSmall = TextStyle(fontSize: 24, fontWeight: FontWeight.bold);
+  
+  static const bodyLarge = TextStyle(fontSize: 16);
+  static const bodyMedium = TextStyle(fontSize: 14);
+  static const bodySmall = TextStyle(fontSize: 12);
+}
+```
+
+#### Spacing System (8px Grid)
+```dart
+class AppSpacing {
+  static const xxs = 2.0;
+  static const xs = 4.0;
+  static const sm = 8.0;
+  static const md = 16.0;
+  static const lg = 24.0;
+  static const xl = 32.0;
+  static const xxl = 48.0;
+}
+```
+
+**Why Design Systems Matter:**
+- ✅ Consistency: Same colors, spacing, fonts throughout the app
+- ✅ Maintainability: Change once, update everywhere
+- ✅ Scalability: Easy to add new screens with existing components
+- ✅ Collaboration: Designers and developers speak the same language
+
+---
+
+### 🎥 UI/UX Design Demo Video
+
+**📹 Video Link:** [UI/UX Design & Responsive Demo - Google Drive]
+
+**Video Contents:**
+1. Figma prototype walkthrough
+2. Design thinking process explanation
+3. Responsive design demo (resize window to show layout changes)
+4. Comparison: Figma design → Flutter implementation
+5. Best practices and common pitfalls
+
+---
+
+### 📚 Design Resources
+
+- [DESIGN_THINKING.md](DESIGN_THINKING.md) - Detailed 5-stage design thinking process
+- [FIGMA_DESIGN_GUIDE.md](FIGMA_DESIGN_GUIDE.md) - Figma-to-Flutter translation guide
+- [lib/screens/responsive_design_demo.dart](lib/screens/responsive_design_demo.dart) - Complete responsive implementation
+- [Material Design 3](https://m3.material.io/) - Google's design system for Flutter
+- [Flutter Layout Cheat Sheet](https://medium.com/flutter-community/flutter-layout-cheat-sheet-5363348d037e)
+
+---
+
+### 🎯 Design Principles Summary
+
+1. **Empathize First, Code Later** — Understand user needs before building
+2. **Prototype in Figma** — Design changes are faster than code changes
+3. **Design Systems Ensure Consistency** — Define colors, spacing, typography once
+4. **Responsive + Adaptive** — Use both for best cross-device experience
+5. **Design for Thumbs** — 48x48px tap targets, bottom-reachable actions
+6. **Test on Real Devices** — Emulators don't show everything
+7. **Performance is UX** — Smooth 60fps matters as much as aesthetics
+
+**Great design is invisible.** Users don't notice good design — they just enjoy using your app. 🎨
+
+---
 ## �📝 Assignment Checklist
 
 ### Concept-1: Flutter & Dart Fundamentals
@@ -668,6 +1250,17 @@ service cloud.firestore {
 - [ ] 🔄 Document Firebase setup and features
 - [ ] 🔄 Create 3-5 minute Firebase demo video
 
+### Concept-3: UI/UX Design & Figma-to-Flutter
+- [x] ✅ Learn design thinking process (Empathize → Define → Ideate → Prototype → Test)
+- [x] ✅ Create Figma design guide with component translations
+- [x] ✅ Understand responsive vs adaptive design
+- [x] ✅ Implement responsive layout with mobile/tablet/desktop breakpoints
+- [x] ✅ Use LayoutBuilder, MediaQuery, and OrientationBuilder
+- [x] ✅ Create reusable design system (colors, typography, spacing)
+- [x] ✅ Document design principles and best practices
+- [ ] ⏳ Create Figma prototype for task management app
+- [ ] ⏳ Create 3-5 minute UI/UX design demo video
+
 ---
 
 ## 👤 Student Information
@@ -675,14 +1268,18 @@ service cloud.firestore {
 **Name:** [Your Name]  
 **Assignment:**  
 - 3.3 [Concept-1] Flutter & Dart Fundamentals  
-- 3.3 [Concept-2] Firebase Services & Real-Time Data Integration  
+- 3.3 [Concept-2] Firebase Services & Real-Time Data Integration
+- 3.3 [Concept-3] UI/UX Design & Figma-to-Flutter Translation
 
 **Date:** March 2, 2026  
 **Project Features:**
 - Counter App with StatelessWidget and StatefulWidget
+- Comprehensive Dart language examples (classes, null safety, async/await)
 - Firebase Authentication (Sign up, Login, Session management)
-- Cloud Firestore Real-Time Database
-- Firebase Storage Integration
+- Cloud Firestore Real-Time Database with CRUD operations
+- Firebase Storage Integration for file uploads
+- Responsive Design with mobile/tablet/desktop layouts
+- Design Thinking documentation and Figma-to-Flutter workflow guide
 
 ---
 
@@ -701,6 +1298,14 @@ service cloud.firestore {
 8. **Authentication is built-in** — handle sign-up, login, and sessions with minimal code
 9. **Cloud Firestore** stores structured data and syncs in real-time across devices
 10. **Focus on features, not infrastructure** — Firebase handles scaling, security, and availability
+
+### UI/UX Design & Responsive Development:
+11. **Design thinking prioritizes users** — empathize before you code
+12. **Figma prototypes are faster to iterate** than Flutter code changes
+13. **Responsive design uses fluid layouts** (MediaQuery, Flexible) for smooth scaling
+14. **Adaptive design uses breakpoints** (LayoutBuilder) for device-specific layouts
+15. **Design systems ensure consistency** — define colors, typography, spacing once and reuse everywhere
+16. **Performance is user experience** — smooth 60fps animations matter as much as visual design
 
 ---
 
