@@ -6,11 +6,11 @@ This project demonstrates the core concepts of Flutter's architecture, widget-ba
 ---
 
 ## 🎯 Learning Objectives Achieved
-- ✅ Understanding Flutter's layered architecture
-- ✅ Mastering StatelessWidget vs StatefulWidget
-- ✅ Implementing reactive UI with setState()
-- ✅ Applying Dart language fundamentals
-- ✅ Building a functional counter app with multiple interactions
+-  Understanding Flutter's layered architecture
+- Mastering StatelessWidget vs StatefulWidget
+- Implementing reactive UI with setState()
+- Applying Dart language fundamentals
+- Building a functional counter app with multiple interactions
 
 ---
 
@@ -142,9 +142,9 @@ var count = 42;        // Type inferred as int
 
 ### 3. **Built-in Null Safety**
 ```dart
-String name = 'Alice';   // Cannot be null
-String? email;           // Can be null
-email ??= 'default@example.com';  // Null-aware operator
+String name = 'Alice';   
+String? email;           
+email ??= 'default@example.com';  
 ```
 - Prevents null reference errors (billion-dollar mistake)
 - Enforced at compile-time
